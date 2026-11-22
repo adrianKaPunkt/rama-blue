@@ -62,10 +62,36 @@
   }
 }
 
-/* "Bewegung reduzieren": Logo steht sofort fertig da, kein Glanz. */
+/* Langsames Drehen der Blüte um ihre Mitte (Ursprung der umgebenden Gruppe).
+   .spinBack läuft mit gleicher Dauer rückwärts und hebt die Drehung wieder auf:
+   so bleibt der Glanzstreifen fest im Raum, während die Blüte unter ihm durchdreht. */
+.spin,
+.spinBack {
+  transform-origin: 0 0;
+  animation-name: spin;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.spinBack {
+  animation-direction: reverse;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* "Bewegung reduzieren": Logo steht sofort fertig da, dreht sich nicht, kein Glanz. */
 @media (prefers-reduced-motion: reduce) {
   .petal,
-  .rise {
+  .rise,
+  .spin,
+  .spinBack {
     animation: none;
   }
 

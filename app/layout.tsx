@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { site } from "@/config/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,18 +14,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Rama Blue – Royal Thai Cuisine",
-  description: "Rama Blue – Royal Thai Cuisine. Bald für euch geöffnet.",
+  title: `${site.name} – ${site.tagline}`,
+  description: site.description,
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children, modal }: LayoutProps<"/">) {
   return (
     <html
       lang="de"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      // Solange ein Modal offen ist, scrollt die Seite dahinter nicht mit.
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased has-[dialog[open]]:overflow-hidden`}
     >
       <body className="flex min-h-full flex-col bg-midnight font-sans text-cream">
         {children}
+        {modal}
       </body>
     </html>
   );

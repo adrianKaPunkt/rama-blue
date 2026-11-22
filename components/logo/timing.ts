@@ -13,6 +13,9 @@ export const BLOOM = {
   turnDelay: 0.25,
 };
 
+/** Langsames Drehen der Blüte: Sekunden für eine volle Umdrehung. Startet nach dem Aufblühen. */
+export const SPIN = { duration: 90 };
+
 /** Einblenden von Schriftzug und Unterzeile. */
 export const RISE = { duration: 1 };
 

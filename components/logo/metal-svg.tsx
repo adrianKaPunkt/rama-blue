@@ -9,7 +9,7 @@ import {
 } from "./gold";
 import styles from "./logo.module.css";
 import type { Box, Petal } from "./paths";
-import { BLOOM, RISE, SHINE_CYCLE, SHINE_OVERLAP } from "./timing";
+import { BLOOM, RISE, SHINE_CYCLE, SHINE_OVERLAP, SPIN } from "./timing";
 
 export type MetalVariant = "current" | "gold";
 
@@ -21,6 +21,8 @@ export type MetalProps = {
   animated?: boolean;
   /** Einmaliger Auftritt beim Laden: Blüte blüht auf, Schrift blendet ein. */
   intro?: boolean;
+  /** Die Blüte dreht sich langsam um ihre Mitte (nach dem Aufblühen). */
+  spin?: boolean;
   /** Mit title wird die Grafik als Bild vorgelesen, ohne (oder leer) gilt sie als Dekoration. */
   title?: string;
   className?: string;
@@ -48,6 +50,8 @@ const timing = (duration: number, delay: number): CSSProperties => ({
   animationDelay: `${delay}s`,
 });
 
+const center = (b: Box) => ({ cx: b.x + b.width / 2, cy: b.y + b.height / 2 });
+
 /** Zeitpunkt, an dem der Auftritt einer Ebene fertig ist. */
 function introEnd(layer: MetalLayer) {
   if (layer.kind === "lotus") {
@@ -56,7 +60,11 @@ function introEnd(layer: MetalLayer) {
   return (layer.introDelay ?? 0) + RISE.duration;
 }
 
-/** Pfade einer Ebene, ohne Füllung (die Füllung setzt der Aufrufer). */
+/** Alle Pfade einer Ebene als d-Strings (für den Clip des Glanzstreifens). */
+const layerPaths = (layer: MetalLayer) =>
+  layer.kind === "lotus" ? layer.petals.map((p) => p.d) : [layer.d];
+
+/** Pfade einer Ebene mit der gegebenen Füllung, beim Intro mit Auftritts-Animation. */
 function renderLayer(layer: MetalLayer, fill: string, intro: boolean, className?: string): ReactNode {
   if (layer.kind === "path") {
     return intro ? (
@@ -77,8 +85,9 @@ function renderLayer(layer: MetalLayer, fill: string, intro: boolean, className?
 
   // Jedes Teil sitzt in einer Gruppe, deren Ursprung die Blütenmitte ist.
   // So wächst und dreht es sich beim Aufblühen um die Mitte der Blüte.
-  const cx = layer.box.x + layer.box.width / 2;
-  const cy = layer.box.y + layer.box.height / 2;
+  // (Die Animation sitzt auf der Gruppe, weil ein CSS-transform am Pfad
+  // dessen transform-Attribut ersetzen würde.)
+  const { cx, cy } = center(layer.box);
   return (
     <g transform={`translate(${cx} ${cy})`}>
       {layer.petals.map((p, i) => (
@@ -90,10 +99,32 @@ function renderLayer(layer: MetalLayer, fill: string, intro: boolean, className?
   );
 }
 
+/** Dreht den Inhalt endlos um die Mitte von box. back: gegenläufig, hebt eine äußere Drehung auf. */
+function Spinner({
+  box,
+  delay,
+  back = false,
+  children,
+}: {
+  box: Box;
+  delay: number;
+  back?: boolean;
+  children: ReactNode;
+}) {
+  const { cx, cy } = center(box);
+  return (
+    <g transform={`translate(${cx} ${cy})`}>
+      <g className={back ? styles.spinBack : styles.spin} style={timing(SPIN.duration, delay)}>
+        <g transform={`translate(${-cx} ${-cy})`}>{children}</g>
+      </g>
+    </g>
+  );
+}
+
 /**
  * Interne Basis für alle Logo-Teile: zeichnet Pfade einfarbig oder in Gold,
- * auf Wunsch mit Auftritt beim Laden und einem Glanzstreifen, der als ein
- * Lichtreflex über alle Teile läuft.
+ * auf Wunsch mit Auftritt beim Laden, drehender Blüte und einem Glanzstreifen,
+ * der als ein Lichtreflex über alle Teile läuft.
  */
 export function MetalSvg({
   box,
@@ -101,6 +132,7 @@ export function MetalSvg({
   variant = "current",
   animated = false,
   intro = false,
+  spin = false,
   title,
   className,
 }: MetalSvgProps) {
@@ -118,23 +150,35 @@ export function MetalSvg({
   };
   const titleEl = title ? <title id={titleId}>{title}</title> : null;
 
+  /** Die Blüte dreht sich, alles andere bleibt stehen. */
+  const spins = (l: MetalLayer) => spin && l.kind === "lotus";
+  const spinDelay = (l: MetalLayer) => (intro ? introEnd(l) : 0);
+
   if (variant === "current") {
     return (
       <svg {...svgProps}>
         {titleEl}
-        {layers.map((l, i) => (
-          <g key={i}>{renderLayer(l, "currentColor", intro, l.className)}</g>
-        ))}
+        {layers.map((l, i) => {
+          const content = renderLayer(l, "currentColor", intro, l.className);
+          return spins(l) ? (
+            <Spinner key={i} box={l.box} delay={spinDelay(l)}>
+              {content}
+            </Spinner>
+          ) : (
+            <g key={i}>{content}</g>
+          );
+        })}
       </svg>
     );
   }
 
-  const clipId = `${id}-clip`;
   const shineId = `${id}-shine`;
+  const clipId = (i: number) => `${id}-clip-${i}`;
 
   // Glanzstreifen: um die Mitte gedreht, startet links außerhalb und endet rechts außerhalb.
-  const cx = box.x + box.width / 2;
-  const cy = box.y + box.height / 2;
+  // Jede Ebene bekommt eine eigene, auf ihre Form beschnittene Kopie desselben Streifens.
+  // Gleiche Lage, gleiches Timing: zusammen wirken sie wie ein einziger Lichtreflex.
+  const { cx, cy } = center(box);
   const radius = Math.hypot(box.width, box.height) / 2;
   const band = radius * 2 * SHINE_WIDTH_RATIO;
   const shineDelay = intro ? Math.max(0, Math.max(...layers.map(introEnd)) - SHINE_OVERLAP) : 0;
@@ -142,6 +186,19 @@ export function MetalSvg({
     "--shine-distance": `${2 * radius + band}px`,
     ...timing(SHINE_CYCLE, shineDelay),
   } as CSSProperties;
+  const shine = (
+    <g transform={`rotate(${SHINE_ANGLE} ${cx} ${cy})`}>
+      <rect
+        x={cx - radius - band}
+        y={cy - radius - 10}
+        width={band}
+        height={2 * radius + 20}
+        fill={`url(#${shineId})`}
+        style={shineStyle}
+        className={styles.shine}
+      />
+    </g>
+  );
 
   return (
     <svg {...svgProps}>
@@ -171,36 +228,42 @@ export function MetalSvg({
                 <stop key={s.offset} offset={s.offset} stopColor={SHINE_COLOR} stopOpacity={s.opacity} />
               ))}
             </linearGradient>
-            <clipPath id={clipId}>
-              {layers.flatMap((l, i) =>
-                l.kind === "lotus"
-                  ? l.petals.map((p, j) => <path key={`${i}-${j}`} d={p.d} />)
-                  : [<path key={i} d={l.d} />],
-              )}
-            </clipPath>
+            {layers.map((l, i) => (
+              <clipPath key={i} id={clipId(i)}>
+                {layerPaths(l).map((d, j) => (
+                  <path key={j} d={d} />
+                ))}
+              </clipPath>
+            ))}
           </>
         )}
       </defs>
 
-      {layers.map((l, i) => (
-        <g key={i}>{renderLayer(l, `url(#${id}-gold-${i})`, intro)}</g>
-      ))}
-
-      {animated && (
-        <g clipPath={`url(#${clipId})`}>
-          <g transform={`rotate(${SHINE_ANGLE} ${cx} ${cy})`}>
-            <rect
-              x={cx - radius - band}
-              y={cy - radius - 10}
-              width={band}
-              height={2 * radius + 20}
-              fill={`url(#${shineId})`}
-              style={shineStyle}
-              className={styles.shine}
-            />
-          </g>
-        </g>
-      )}
+      {layers.map((l, i) => {
+        const content = renderLayer(l, `url(#${id}-gold-${i})`, intro);
+        if (!spins(l)) {
+          return (
+            <g key={i}>
+              {content}
+              {animated && <g clipPath={`url(#${clipId(i)})`}>{shine}</g>}
+            </g>
+          );
+        }
+        // Drehende Blüte: Der Clip dreht mit (er sitzt im drehenden Koordinatensystem),
+        // der Streifen selbst wird gegenläufig gedreht und bleibt so fest im Raum.
+        return (
+          <Spinner key={i} box={l.box} delay={spinDelay(l)}>
+            {content}
+            {animated && (
+              <g clipPath={`url(#${clipId(i)})`}>
+                <Spinner box={l.box} delay={spinDelay(l)} back>
+                  {shine}
+                </Spinner>
+              </g>
+            )}
+          </Spinner>
+        );
+      })}
     </svg>
   );
 }

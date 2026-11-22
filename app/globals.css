@@ -7,6 +7,8 @@
   --color-cream: #fbf7f0;
   /* Dunkles Blau des Hintergrundbilds, liegt beim Laden unter dem Bild */
   --color-midnight: #0e1828;
+  /* Champagnergold aus dem Logo, für Überschriften und Links */
+  --color-champagne: #e0b896;
 }
 
 /* Schriften kommen über next/font aus layout.tsx (werden beim Build lokal eingebunden). */
