@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* Rama Blue – Markenfarben aus dem Logo. Nutzbar als bg-navy, text-wine, border-cream usw. */
+@theme {
+  --color-navy: #1e1a53;
+  --color-wine: #8a1b1d;
+  --color-cream: #fbf7f0;
+  /* Dunkles Blau des Hintergrundbilds, liegt beim Laden unter dem Bild */
+  --color-midnight: #0e1828;
+
+  /* Glanzstreifen über dem goldenen Logo: kurze Wartezeit, ~1,5 s Durchlauf, dann Pause. Zyklus 7 s.
+     Die Strecke setzt jede Komponente selbst über --shine-distance (abhängig von ihrer Größe). */
+  --animate-metal-shine: metal-shine 7s ease-in-out infinite;
+
+  @keyframes metal-shine {
+    0%,
+    8% {
+      transform: translateX(0);
+    }
+    30%,
+    100% {
+      transform: translateX(var(--shine-distance));
+    }
+  }
+}
+
+/* Schriften kommen über next/font aus layout.tsx (werden beim Build lokal eingebunden). */
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
