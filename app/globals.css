@@ -9,6 +9,11 @@
   --color-midnight: #0e1828;
   /* Champagnergold aus dem Logo, für Überschriften und Links */
   --color-champagne: #e0b896;
+
+  /* Aufgehellte Markenfarben für dunkle Hintergründe (gleicher Farbton wie wine/navy).
+     Kontrast auf midnight: wine-light 5.2:1, navy-light 5.6:1 – beide gut lesbar als Text (WCAG AA). */
+  --color-wine-light: #cf6e6f;
+  --color-navy-light: #8e89d2;
 }
 
 /* Schriften kommen über next/font aus layout.tsx (werden beim Build lokal eingebunden). */

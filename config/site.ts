@@ -11,33 +11,60 @@ export const site = {
 
   company: {
     /** Vollständige Firma inkl. Rechtsform, wie im Handelsregister */
-    legalName: "[Firmenname] GmbH",
+    legalName: "Rama Blue GmbH",
     /** Vertretungsberechtigte Geschäftsführer (bei mehreren: alle aufführen) */
-    managingDirectors: ["[Vorname Nachname]"],
+    managingDirectors: ["Astrit Hajzeraj"],
   },
 
   address: {
-    street: "[Straße Hausnummer]",
-    zip: "[PLZ]",
-    city: "[Ort]",
+    street: "Four Frankfurt\nDistrikt Marquet\nJunghofstraße 5",
+    zip: "60315",
+    city: "Frankfurt am Main",
     country: "Deutschland",
   },
 
   contact: {
     /** Für die Anzeige, z. B. "+49 30 1234567" */
     phone: "[+49 …]",
-    email: "[kontakt@…]",
+    email: "info@ramablue.de",
   },
 
   register: {
     /** z. B. "Amtsgericht Berlin-Charlottenburg" */
-    court: "[Amtsgericht …]",
+    court: "Amtsgericht Frankfurt am Main",
     /** z. B. "HRB 123456" */
-    number: "[HRB …]",
+    number: "HRB145403",
   },
 
-  /** Umsatzsteuer-Identifikationsnummer nach § 27a UStG, null wenn (noch) keine vorhanden */
-  vatId: "[DE…]" as string | null,
+  /**
+   * Umsatzsteuer-Identifikationsnummer nach § 27a UStG.
+   * "beantragt", solange sie noch nicht zugeteilt ist; danach die Nummer eintragen (z. B. "DE123456789").
+   * null blendet den Abschnitt im Impressum ganz aus.
+   */
+  vatId: "beantragt" as string | null,
+
+  /** Angaben für die Datenschutzerklärung */
+  privacy: {
+    /** Datum der letzten Änderung der Datenschutzerklärung */
+    updated: "November 2026",
+    hosting: {
+      name: "Vercel Inc.",
+      address: "340 S Lemon Ave #4133, Walnut, CA 91789, USA",
+      /**
+       * Anbieter sitzt in den USA: blendet in der Datenschutzerklärung den Absatz zur
+       * Übermittlung in die USA ein (EU-US Data Privacy Framework + Standardvertragsklauseln).
+       * Bei einem Hoster in der EU auf false setzen.
+       */
+      transfersToUsa: true,
+    },
+    /** Nach wie vielen Tagen der Hoster die Server-Logfiles löscht (steht im Vertrag bzw. AV-Vertrag) */
+    logRetentionDays: "30",
+    /** Zuständige Aufsichtsbehörde (Sitz der GmbH in Hessen) */
+    supervisoryAuthority: {
+      name: "Der Hessische Beauftragte für Datenschutz und Informationsfreiheit",
+      address: "Gustav-Stresemann-Ring 1, 65189 Wiesbaden",
+    },
+  },
 } as const;
 
 export type Site = typeof site;
