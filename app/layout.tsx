@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description: site.description,
 };
 
-export default function RootLayout({ children, modal }: LayoutProps<"/">) {
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="de"
@@ -27,7 +27,6 @@ export default function RootLayout({ children, modal }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col bg-midnight font-sans text-cream">
         {children}
-        {modal}
       </body>
     </html>
   );

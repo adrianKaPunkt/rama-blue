@@ -48,8 +48,11 @@ export const site = {
     /** Datum der letzten Änderung der Datenschutzerklärung */
     updated: "November 2026",
     hosting: {
-      name: "Vercel Inc.",
-      address: "340 S Lemon Ave #4133, Walnut, CA 91789, USA",
+      // TODO vor dem Livegang: Anschrift mit Cloudflares aktueller Datenschutzerklärung abgleichen
+      name: "Cloudflare, Inc.",
+      address: "101 Townsend St, San Francisco, CA 94107, USA",
+      /** Datenschutzerklärung des Hosters (wird für Speicherfristen und Details verlinkt) */
+      privacyPolicyUrl: "https://www.cloudflare.com/privacypolicy/",
       /**
        * Anbieter sitzt in den USA: blendet in der Datenschutzerklärung den Absatz zur
        * Übermittlung in die USA ein (EU-US Data Privacy Framework + Standardvertragsklauseln).
@@ -57,8 +60,6 @@ export const site = {
        */
       transfersToUsa: true,
     },
-    /** Nach wie vielen Tagen der Hoster die Server-Logfiles löscht (steht im Vertrag bzw. AV-Vertrag) */
-    logRetentionDays: "30",
     /** Zuständige Aufsichtsbehörde (Sitz der GmbH in Hessen) */
     supervisoryAuthority: {
       name: "Der Hessische Beauftragte für Datenschutz und Informationsfreiheit",

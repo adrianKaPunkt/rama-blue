@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  // cacheComponents / partialPrefetching (Voreinstellung von create-next-app) sind bewusst aus:
+  // Die Seite nutzt sie nicht, und der Cloudflare-Adapter unterstützt sie noch nicht vollständig.
+  // https://github.com/opennextjs/opennextjs-cloudflare/pull/1318
   turbopack: {
     rules: {
       // Tailwind für alle CSS-Dateien. CSS-Module (*.module.css) müssen dabei Module bleiben,
@@ -25,3 +25,6 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+// Cloudflare-Bindings (z. B. Images) auch im lokalen `next dev` verfügbar machen.
+import("@opennextjs/cloudflare").then((m) => m.initOpenNextCloudflareForDev());

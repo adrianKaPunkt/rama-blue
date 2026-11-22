@@ -22,17 +22,18 @@ export function Datenschutz({ titleId }: { titleId?: string }) {
       <LegalSection title="Überblick">
         <p>
           Der Schutz Ihrer personenbezogenen Daten ist uns wichtig. Diese Website ist derzeit eine
-          Ankündigungsseite. Wir setzen keine Cookies, verwenden keine Analyse- oder Tracking-Dienste
-          und binden keine Inhalte von Drittanbietern ein. Schriftarten und Bilder werden direkt von
-          unserem Server geladen; beim Besuch der Seite werden keine Verbindungen zu Servern Dritter
-          (etwa Google) aufgebaut.
+          Ankündigungsseite. Wir selbst setzen keine Cookies, verwenden keine Analyse- oder
+          Tracking-Dienste und binden keine Inhalte von Drittanbietern ein. Schriftarten und Bilder
+          werden über unseren Hosting-Anbieter ausgeliefert; beim Besuch der Seite werden keine
+          Verbindungen zu weiteren Diensten (etwa Google) aufgebaut.
         </p>
       </LegalSection>
 
       <LegalSection title="Hosting und Server-Logfiles">
         <p>
-          Diese Website wird bei {privacy.hosting.name}, {privacy.hosting.address} gehostet. Beim
-          Aufruf der Seite erfasst der Server automatisch Informationen, die Ihr Browser übermittelt
+          Diese Website wird bei {privacy.hosting.name}, {privacy.hosting.address} gehostet und über
+          dessen weltweit verteiltes Servernetz (Content Delivery Network) ausgeliefert. Beim Aufruf
+          der Seite verarbeitet der Anbieter automatisch Informationen, die Ihr Browser übermittelt
           (Server-Logfiles):
         </p>
         <ul className="list-disc space-y-1 pl-5">
@@ -45,13 +46,29 @@ export function Datenschutz({ titleId }: { titleId?: string }) {
         </ul>
         <p>
           Diese Daten werden benötigt, um die Website auszuliefern, ihre Stabilität und Sicherheit zu
-          gewährleisten und Fehler zu analysieren. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO;
-          unser berechtigtes Interesse liegt im sicheren und fehlerfreien Betrieb der Website. Die
-          Logfiles werden nach {privacy.logRetentionDays} Tagen gelöscht, sofern sie nicht zur
-          Aufklärung eines Sicherheitsvorfalls länger benötigt werden.
+          gewährleisten (etwa zur Abwehr von Angriffen und missbräuchlichen Zugriffen) und Fehler zu
+          analysieren. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; unser berechtigtes Interesse
+          liegt im sicheren und fehlerfreien Betrieb der Website.
         </p>
         <p>
-          Mit dem Hosting-Anbieter besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.
+          Wir selbst speichern diese Logfiles nicht. {privacy.hosting.name} verarbeitet sie in
+          unserem Auftrag und löscht sie nach den eigenen Speicherfristen. Einzelheiten finden Sie in
+          der{" "}
+          <a
+            href={privacy.hosting.privacyPolicyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-4 hover:text-champagne"
+          >
+            Datenschutzerklärung von {privacy.hosting.name}
+          </a>
+          . Mit dem Anbieter besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.
+        </p>
+        <p>
+          Zum Schutz vor Angriffen und automatisierten Zugriffen (Bots) kann {privacy.hosting.name}{" "}
+          technisch notwendige Cookies setzen (z. B. „__cf_bm“). Diese dienen ausschließlich der
+          Sicherheit, enthalten keine Profildaten und werden nach kurzer Zeit gelöscht.
+          Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG in Verbindung mit Art. 6 Abs. 1 lit. f DSGVO.
         </p>
       </LegalSection>
 

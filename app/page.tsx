@@ -1,5 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
+import { Datenschutz } from "@/components/legal/datenschutz";
+import { Impressum } from "@/components/legal/impressum";
+import { LegalModalLink } from "@/components/legal/legal-modal-link";
 import { Logo } from "@/components/logo/logo";
 
 export default function Home() {
@@ -23,13 +25,23 @@ export default function Home() {
       </p>
 
       <footer className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-4 pb-6 text-xs tracking-[0.2em] text-champagne/70 uppercase">
-        <Link href="/impressum" className="transition-colors hover:text-champagne">
-          Impressum
-        </Link>
+        <LegalModalLink
+          href="/impressum"
+          label="Impressum"
+          labelledBy="impressum-title"
+          className="transition-colors hover:text-champagne"
+        >
+          <Impressum titleId="impressum-title" />
+        </LegalModalLink>
         <span aria-hidden="true">·</span>
-        <Link href="/datenschutz" className="transition-colors hover:text-champagne">
-          Datenschutz
-        </Link>
+        <LegalModalLink
+          href="/datenschutz"
+          label="Datenschutz"
+          labelledBy="datenschutz-title"
+          className="transition-colors hover:text-champagne"
+        >
+          <Datenschutz titleId="datenschutz-title" />
+        </LegalModalLink>
       </footer>
     </main>
   );

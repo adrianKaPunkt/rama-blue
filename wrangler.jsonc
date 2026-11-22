@@ -1,0 +1,25 @@
+{
+  // Cloudflare-Worker für Rama Blue (Next.js über OpenNext)
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "rama-blue",
+  "compatibility_date": "2026-11-19",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      // Verweis auf sich selbst, der Name muss dem Worker-Namen entsprechen
+      // https://opennext.js.org/cloudflare/caching
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "rama-blue"
+    }
+  ],
+  "images": {
+    // Bildoptimierung für next/image über Cloudflare Images
+    // https://opennext.js.org/cloudflare/howtos/image
+    "binding": "IMAGES"
+  }
+}
