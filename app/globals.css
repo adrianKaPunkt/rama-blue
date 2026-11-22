@@ -14,6 +14,23 @@
      Kontrast auf midnight: wine-light 5.2:1, navy-light 5.6:1 – beide gut lesbar als Text (WCAG AA). */
   --color-wine-light: #cf6e6f;
   --color-navy-light: #8e89d2;
+
+  /* Türkis für den Lichtschleier über dem Hintergrund */
+  --color-turquoise: #3cc6d4;
+
+  /* "Gezeiten": langsames An- und Abschwellen, z. B. für den türkisen Lichtschleier.
+     Nutzbar als animate-tide (Deckkraft 0 → 1 → 0). */
+  --animate-tide: tide 10s ease-in-out infinite;
+
+  @keyframes tide {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
 }
 
 /* Schriften kommen über next/font aus layout.tsx (werden beim Build lokal eingebunden). */

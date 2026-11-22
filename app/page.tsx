@@ -8,6 +8,13 @@ export default function Home() {
   return (
     <main className="relative flex min-h-svh flex-1 flex-col items-center justify-center overflow-hidden px-4 py-16">
       <Image src="/background.jpg" alt="" fill priority sizes="100vw" className="object-cover" />
+      {/* Türkiser Lichtschleier: färbt die Wand von oben her sanft ein und schwillt langsam
+          an und ab (animate-tide). mix-blend-color übernimmt nur den Farbton, die Textur
+          bleibt erhalten. Animiert wird nur die Deckkraft – das läuft auf der Grafikkarte. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 animate-tide bg-[radial-gradient(ellipse_90%_75%_at_50%_0%,color-mix(in_oklab,var(--color-turquoise)_55%,transparent)_0%,transparent_100%)] opacity-0 mix-blend-color motion-reduce:animate-none"
+      />
       <h1 className="relative w-full max-w-xl">
         <Logo
           variant="gold"
