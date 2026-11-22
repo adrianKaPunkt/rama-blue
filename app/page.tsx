@@ -9,6 +9,7 @@ export default function Home() {
         <Logo
           variant="gold"
           animated
+          intro
           className="h-auto w-full drop-shadow-[2px_4px_4px_rgb(0_0_0/0.6)]"
         />
       </h1>

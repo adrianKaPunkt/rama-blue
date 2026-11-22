@@ -1,0 +1,75 @@
+/*
+ * Animationen des Rama-Blue-Logos.
+ * CSS-Modul: Next.js macht Klassen- und Keyframe-Namen eindeutig, nichts kollidiert mit anderem CSS.
+ * Hier steht nur das "Wie" (Keyframes, Easing). Das "Wann" (Dauer, Verzögerung) setzt
+ * metal-svg.tsx per Inline-Style aus timing.ts, damit alle Zeiten an einer Stelle stehen.
+ */
+
+/* Glanzstreifen: kurze Wartezeit, Durchlauf, dann Pause bis zum nächsten Zyklus.
+   Die Strecke kommt pro Grafik über --shine-distance. */
+.shine {
+  animation-name: shine;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes shine {
+  0%,
+  8% {
+    transform: translateX(0);
+  }
+  30%,
+  100% {
+    transform: translateX(var(--shine-distance));
+  }
+}
+
+/* Aufblühen: jedes Blütenteil wächst aus der Blütenmitte (Ursprung der umgebenden Gruppe)
+   und dreht sich dabei leicht auf. */
+.petal {
+  transform-origin: 0 0;
+  animation-name: bloom;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+}
+
+@keyframes bloom {
+  from {
+    opacity: 0;
+    transform: rotate(-25deg) scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Schriftzug und Unterzeile: weich von unten einblenden. */
+.rise {
+  animation-name: rise;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* "Bewegung reduzieren": Logo steht sofort fertig da, kein Glanz. */
+@media (prefers-reduced-motion: reduce) {
+  .petal,
+  .rise {
+    animation: none;
+  }
+
+  .shine {
+    display: none;
+  }
+}

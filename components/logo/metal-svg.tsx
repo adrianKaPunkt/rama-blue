@@ -1,4 +1,4 @@
-import { useId, type CSSProperties } from "react";
+import { useId, type CSSProperties, type ReactNode } from "react";
 import {
   GOLD_STOPS,
   GOLD_TILT,
@@ -7,7 +7,9 @@ import {
   SHINE_STOPS,
   SHINE_WIDTH_RATIO,
 } from "./gold";
-import type { Box } from "./paths";
+import styles from "./logo.module.css";
+import type { Box, Petal } from "./paths";
+import { BLOOM, RISE, SHINE_CYCLE, SHINE_OVERLAP } from "./timing";
 
 export type MetalVariant = "current" | "gold";
 
@@ -17,17 +19,21 @@ export type MetalProps = {
   variant?: MetalVariant;
   /** Glanzstreifen, der regelmäßig über die Grafik läuft. Wirkt nur bei variant="gold". */
   animated?: boolean;
+  /** Einmaliger Auftritt beim Laden: Blüte blüht auf, Schrift blendet ein. */
+  intro?: boolean;
   /** Mit title wird die Grafik als Bild vorgelesen, ohne (oder leer) gilt sie als Dekoration. */
   title?: string;
   className?: string;
 };
 
 export type MetalLayer = {
-  d: string;
   box: Box;
   /** Nur bei variant="current": Farbe dieses Teils, z. B. "text-wine". */
   className?: string;
-};
+} & (
+  | { kind: "lotus"; petals: readonly Petal[] }
+  | { kind: "path"; d: string; /** Start des Einblendens beim Intro, in Sekunden */ introDelay?: number }
+);
 
 type MetalSvgProps = MetalProps & {
   /** Sichtbarer Ausschnitt im gemeinsamen Logo-Koordinatensystem. */
@@ -35,15 +41,66 @@ type MetalSvgProps = MetalProps & {
   layers: MetalLayer[];
 };
 
+const petalDelay = (p: Petal) => p.ring * BLOOM.ringDelay + p.turn * BLOOM.turnDelay;
+
+const timing = (duration: number, delay: number): CSSProperties => ({
+  animationDuration: `${duration}s`,
+  animationDelay: `${delay}s`,
+});
+
+/** Zeitpunkt, an dem der Auftritt einer Ebene fertig ist. */
+function introEnd(layer: MetalLayer) {
+  if (layer.kind === "lotus") {
+    return Math.max(...layer.petals.map(petalDelay)) + BLOOM.duration;
+  }
+  return (layer.introDelay ?? 0) + RISE.duration;
+}
+
+/** Pfade einer Ebene, ohne Füllung (die Füllung setzt der Aufrufer). */
+function renderLayer(layer: MetalLayer, fill: string, intro: boolean, className?: string): ReactNode {
+  if (layer.kind === "path") {
+    return intro ? (
+      <path
+        d={layer.d}
+        fill={fill}
+        className={`${styles.rise} ${className ?? ""}`}
+        style={timing(RISE.duration, layer.introDelay ?? 0)}
+      />
+    ) : (
+      <path d={layer.d} fill={fill} className={className} />
+    );
+  }
+
+  if (!intro) {
+    return layer.petals.map((p, i) => <path key={i} d={p.d} fill={fill} className={className} />);
+  }
+
+  // Jedes Teil sitzt in einer Gruppe, deren Ursprung die Blütenmitte ist.
+  // So wächst und dreht es sich beim Aufblühen um die Mitte der Blüte.
+  const cx = layer.box.x + layer.box.width / 2;
+  const cy = layer.box.y + layer.box.height / 2;
+  return (
+    <g transform={`translate(${cx} ${cy})`}>
+      {layer.petals.map((p, i) => (
+        <g key={i} className={styles.petal} style={timing(BLOOM.duration, petalDelay(p))}>
+          <path d={p.d} fill={fill} className={className} transform={`translate(${-cx} ${-cy})`} />
+        </g>
+      ))}
+    </g>
+  );
+}
+
 /**
  * Interne Basis für alle Logo-Teile: zeichnet Pfade einfarbig oder in Gold,
- * auf Wunsch mit einem Glanzstreifen, der als ein Lichtreflex über alle Teile läuft.
+ * auf Wunsch mit Auftritt beim Laden und einem Glanzstreifen, der als ein
+ * Lichtreflex über alle Teile läuft.
  */
 export function MetalSvg({
   box,
   layers,
   variant = "current",
   animated = false,
+  intro = false,
   title,
   className,
 }: MetalSvgProps) {
@@ -66,7 +123,7 @@ export function MetalSvg({
       <svg {...svgProps}>
         {titleEl}
         {layers.map((l, i) => (
-          <path key={i} d={l.d} fill="currentColor" className={l.className} />
+          <g key={i}>{renderLayer(l, "currentColor", intro, l.className)}</g>
         ))}
       </svg>
     );
@@ -80,7 +137,11 @@ export function MetalSvg({
   const cy = box.y + box.height / 2;
   const radius = Math.hypot(box.width, box.height) / 2;
   const band = radius * 2 * SHINE_WIDTH_RATIO;
-  const shineStyle = { "--shine-distance": `${2 * radius + band}px` } as CSSProperties;
+  const shineDelay = intro ? Math.max(0, Math.max(...layers.map(introEnd)) - SHINE_OVERLAP) : 0;
+  const shineStyle = {
+    "--shine-distance": `${2 * radius + band}px`,
+    ...timing(SHINE_CYCLE, shineDelay),
+  } as CSSProperties;
 
   return (
     <svg {...svgProps}>
@@ -111,21 +172,22 @@ export function MetalSvg({
               ))}
             </linearGradient>
             <clipPath id={clipId}>
-              {layers.map((l, i) => (
-                <path key={i} d={l.d} />
-              ))}
+              {layers.flatMap((l, i) =>
+                l.kind === "lotus"
+                  ? l.petals.map((p, j) => <path key={`${i}-${j}`} d={p.d} />)
+                  : [<path key={i} d={l.d} />],
+              )}
             </clipPath>
           </>
         )}
       </defs>
 
       {layers.map((l, i) => (
-        <path key={i} d={l.d} fill={`url(#${id}-gold-${i})`} />
+        <g key={i}>{renderLayer(l, `url(#${id}-gold-${i})`, intro)}</g>
       ))}
 
       {animated && (
-        // Bei "Bewegung reduzieren" entfällt der Streifen, die Grafik bleibt in festem Gold.
-        <g clipPath={`url(#${clipId})`} className="motion-reduce:hidden">
+        <g clipPath={`url(#${clipId})`}>
           <g transform={`rotate(${SHINE_ANGLE} ${cx} ${cy})`}>
             <rect
               x={cx - radius - band}
@@ -134,7 +196,7 @@ export function MetalSvg({
               height={2 * radius + 20}
               fill={`url(#${shineId})`}
               style={shineStyle}
-              className="animate-metal-shine"
+              className={styles.shine}
             />
           </g>
         </g>

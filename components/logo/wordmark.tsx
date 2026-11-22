@@ -6,6 +6,7 @@ import {
   WORDMARK_PATH,
   WORDMARK_TAGLINE_BOX,
 } from "./paths";
+import { WORDMARK_TAGLINE_DELAY } from "./timing";
 
 type WordmarkProps = MetalProps & {
   /** Unterzeile „ROYAL THAI CUISINE“ anzeigen (Standard: ja). */
@@ -21,8 +22,16 @@ export function Wordmark({
   title = tagline ? "Rama Blue – Royal Thai Cuisine" : "Rama Blue",
   ...props
 }: WordmarkProps) {
-  const layers: MetalLayer[] = [{ d: WORDMARK_PATH, box: WORDMARK_BOX }];
-  if (tagline) layers.push({ d: TAGLINE_PATH, box: TAGLINE_BOX, className: taglineClassName });
+  const layers: MetalLayer[] = [{ kind: "path", d: WORDMARK_PATH, box: WORDMARK_BOX }];
+  if (tagline) {
+    layers.push({
+      kind: "path",
+      d: TAGLINE_PATH,
+      box: TAGLINE_BOX,
+      className: taglineClassName,
+      introDelay: WORDMARK_TAGLINE_DELAY,
+    });
+  }
 
   return (
     <MetalSvg
